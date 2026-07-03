@@ -1,4 +1,4 @@
-const CACHE_NAME = "bp-log-v2";
+const CACHE_NAME = "bp-log-v3";
 const SHELL_FILES = [
   "./",
   "./index.html",
