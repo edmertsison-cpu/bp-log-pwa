@@ -1,86 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>BP Log</title>
-<meta name="theme-color" content="#1B2A2E" />
-<meta name="description" content="Blood pressure and pulse tracker for Tep and Jeng" />
-<link rel="manifest" href="manifest.json" />
-<link rel="icon" href="icons/icon-192.png" />
-<link rel="apple-touch-icon" href="icons/icon-192.png" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="BP Log" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
-<style>
-  :root { --ink:#1B2A2E; --paper:#F0F3F1; --card:#FFFFFF; --line:#D8DFDC; --mute:#6B7A78; }
-  * { box-sizing: border-box; }
-  html, body { margin:0; padding:0; background:var(--paper); color:var(--ink); font-family:'Inter',ui-sans-serif,system-ui,sans-serif; -webkit-tap-highlight-color: transparent; }
-  #app { max-width: 460px; margin: 0 auto; padding: max(24px, calc(env(safe-area-inset-top) + 16px)) max(20px, env(safe-area-inset-right)) max(64px, calc(env(safe-area-inset-bottom) + 24px)) max(20px, env(safe-area-inset-left)); }
-
-  h1 { font-family:'Fraunces',serif; font-weight:600; font-size:24px; margin:0; }
-  .num { font-family:'IBM Plex Mono',ui-monospace,monospace; }
-  .muted { color: var(--mute); }
-  .small { font-size: 12px; }
-  .center { text-align: center; }
-  .pad { padding: 32px 0; }
-  .mb2{margin-bottom:2px}.mb4{margin-bottom:4px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}
-  .mb16{margin-bottom:16px}.mb20{margin-bottom:20px}.mt2{margin-top:2px}.mt4{margin-top:4px}
-  .row { display:flex; align-items:center; }
-  .gap4{gap:4px}.gap8{gap:8px}
-  .spread { justify-content: space-between; }
-  .wrap { flex-wrap: wrap; }
-
-  .header { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
-  .pulseline { margin-bottom: 20px; }
-  .pulseline svg .drawline, .drawline { stroke-dasharray: 400; stroke-dashoffset: 400; animation: draw 1.4s ease-out forwards; }
-  @keyframes draw { to { stroke-dashoffset: 0; } }
-
-  .btn-ghost { display:flex; align-items:center; gap:6px; font-size:12px; padding:7px 11px; border-radius:10px; border:1px solid var(--line); background:transparent; color:var(--mute); cursor:pointer; }
-  .btn-solid { border:none; border-radius:10px; padding:11px; color:#fff; font-size:14px; font-weight:500; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; }
-  .full { width:100%; }
-  .link { display:flex; align-items:center; gap:4px; background:none; border:none; color:var(--mute); font-size:12px; cursor:pointer; padding:0; }
-
-  .tab { flex:1; padding:9px; border-radius:10px; font-size:14px; font-weight:500; background:var(--card); color:var(--ink); border:1px solid var(--line); cursor:pointer; }
-  .segmented { display:flex; gap:4px; padding:4px; border-radius:10px; background:var(--card); border:1px solid var(--line); }
-  .seg { flex:1; padding:7px; border-radius:7px; font-size:12px; font-weight:500; background:transparent; color:var(--mute); border:none; cursor:pointer; }
-  .seg.active { background: var(--paper); color: var(--ink); }
-  .seg-pill { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:9px; border-radius:10px; font-size:12px; font-weight:500; background:var(--paper); color:var(--mute); border:1px solid var(--line); cursor:pointer; }
-
-  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; }
-  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
-  .label { font-size:12px; color:var(--mute); }
-  .big { font-size:24px; font-weight:600; }
-
-  label { font-size:12px; color:var(--mute); display:block; margin-bottom:4px; }
-  input { width:100%; padding:9px 10px; border-radius:10px; border:1px solid var(--line); background:var(--paper); font-size:14px; color:var(--ink); outline:none; font-family:inherit; }
-  input.num, #sysInput, #diaInput, #pulseInput { font-family:'IBM Plex Mono',monospace; }
-  input:focus { border-color:#9AAFB0; }
-  .error { color:#9B2C2C; font-size:12px; margin-bottom:8px; }
-
-  .badge { font-size:10px; font-weight:600; padding:2px 8px; border-radius:999px; }
-  .stack { display:flex; flex-direction:column; gap:8px; }
-  .hist-row { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
-  .icon-btn { background:none; border:none; color:var(--mute); padding:6px; border-radius:8px; cursor:pointer; display:flex; }
-  .icon-btn.bordered { border:1px solid var(--line); }
-  .icon-btn:disabled { opacity:0.4; }
-
-  .week-label { font-size:14px; font-weight:500; }
-  .week-grid { border:1px solid var(--line); border-radius:14px; overflow:hidden; }
-  .week-head { display:grid; grid-template-columns:1fr 1fr 1fr; font-size:12px; font-weight:500; color:var(--mute); padding:8px 12px; background:var(--card); }
-  .week-day { display:grid; grid-template-columns:1fr 1fr 1fr; font-size:12px; padding:10px 12px; align-items:center; gap:6px; }
-  .daycell { display:flex; flex-direction:column; }
-  .dname { font-weight:500; }
-  .readcell { padding:5px 8px; border-radius:6px; }
-
-  .footnote { font-size:11px; color:var(--mute); text-align:center; margin-top:32px; line-height:1.5; }
-</style>
-</head>
-<body>
-  <div id="app"></div>
-  <script src="app.js"></script>
-</body>
-</html>
+{
+  "name": "BP Log — Tep & Jeng",
+  "short_name": "BP Log",
+  "description": "Blood pressure and pulse tracker",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F0F3F1",
+  "theme_color": "#1B2A2E",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
